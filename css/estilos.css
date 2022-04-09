@@ -1,0 +1,70 @@
+body { 
+    background: url(../images/fondo.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+body.modal-open {
+    overflow: visible;
+}
+
+#modal {
+    position: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 255);
+    z-index: 99999;
+    height: 100%;
+    width: 100%;
+}
+
+.modalconent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    width: 20%;
+    padding: 20px;
+}
+
+.cap {
+    position: absolute;
+    border: 1px solid blue;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.chi {
+    position: absolute;
+    border: 1px solid blue;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.texto {
+    font-size: 20px; 
+    /* border: 2px solid blue;  */
+    color: white; 
+    background-color: black;
+}
+
+header {
+    background-color: black;
+    position: absolute;
+    width: 100%;
+    height: 58px;
+    color: white;
+    padding: 10px;
+  }
+
+  .ocultar {
+    display: none;
+  }
+
+  #pizarra_cap, #pizarra_chi {
+      font-family: 'Courier New', Courier, monospace;
+  }
