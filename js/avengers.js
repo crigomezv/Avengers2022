@@ -399,14 +399,7 @@ $(document).ready(function(){
     
   }
 
-  // $(cap.cicloDeVida).click(function(){
-    
-  // });
-
-  // $(chi.cicloDeVida).click(function() {
   function cicloDeVidaCap() {
-    chi.mover(-5);
-
     if (cap.tocando(chi)) {
       if (!tocado) {
         if (cap.disfrazActual == 'capshield' || cap.disfrazActual == 'caphand') {
@@ -454,7 +447,7 @@ $(document).ready(function(){
   }
 
   function cicloDeVidaChi() {
-
+    chi.mover(-5);
   }
 
 });
