@@ -1,27 +1,12 @@
 $(document).ready(function(){
-  
   var snd = new sound('ave.mp3', 0.5, true);
-  var bb = new Blackboard('blackboard', 10);
-  bb.create();
+  // var bb = new Blackboard('blackboard', 10);
+  // bb.create();
 
   $("#test").click(function(){
     new Screen('fondo.jpg');
     snd.playSound();
     // setTimeout(function() { snd.stopSound(); }, 6000);
-  });
-
-  $("#test1").click(function(){
-    snd.stopSound();
-  });
-
-  $("#test2").click(function(){
-    snd.increaseVolume();
-    bb.write('<br>' + snd.volume);
-  });
-
-  $("#test3").click(function(){
-    snd.decreaseVolume();
-    bb.write('<br>' + snd.volume);
   });
 
   $("#ver-botones").click(function(){
