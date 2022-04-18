@@ -1,18 +1,10 @@
-var puntaje = 0;
-var vidas = 0;
-var fechaDeMuerte = null;
-var sonidoShield = 0;
-var audio = null;
-var audioSonido = null;
-var audioCancion = null;
-
 class Sprite {
-  constructor(nombre, clase, cicloDeVida, x, y, w, h) {
+  constructor(nombre, clase, cicloDeVida, x, y, w, h, voltear, rotacionZ, rebotar) {
     
     this.id = '#' + nombre;
     this.nombre = nombre;
     this.clase = clase;
-    $('#game_screen').append(`<div id="${nombre}" class="${clase}"></div>`); 
+    $('body').append(`<div id="${nombre}" class="${clase}"></div>`); 
     this.objeto = $(this.id);
     this.cicloDeVida = cicloDeVida;
 
@@ -23,6 +15,12 @@ class Sprite {
     this.y = y;
     this.w = w;
     this.h = h;
+    
+    this.rebotar = rebotar;
+    this.rotacionY = 0;
+    this.rotacionZ = rotacionZ;
+    this.voltear = voltear;
+    this.voltearDisfraz(this.voltear);
 
     this.irA(x, y);
 
@@ -31,17 +29,13 @@ class Sprite {
     this.disfrazActualValor = ''
     this.disfrazActualIndice = -1;
 
-    this.anguloRotacion = 0;
-
     this.sonidos = new Map();
     this.sonidoActual = '';
     this.sonidoActualValor = ''
     this.sonidoActualIndice = -1;
-
-    this.audioSonido = null;
+    this.audioSonido = new Sound();
 
     this.relojCicloDeVida = null;
-    this.mousemoveListener = null;
   }
 
   calcularEsquinas() {
@@ -59,7 +53,7 @@ class Sprite {
       this.h = parseInt($(this.id).css('height').replace('px', ''));
       this.calcularEsquinas();
       this.cicloDeVida();
-    });
+    }, 1);
   }
 
   escribirEnPizarra(texto) {
@@ -91,16 +85,81 @@ class Sprite {
   }
 
   mover(pasos) {
-    this.irA(this.x + pasos, this.y);
-    if (this.rightTop.x < 0) {
-      this.irA($(window).width(), this.y);
-      this.mostrar();
+    let radianes = this.rotacionZ * (Math.PI / 180);
+    this.x += pasos * Math.cos(radianes);
+    this.y -= pasos * Math.sin(radianes);
+    this.calcularEsquinas();
+    this.irA(this.x, this.y);
+
+    if (this.rebotar) {
+
+      if (this.leftTop.x < 0) {
+        this.x = 0;
+        this.rotar(this.rotacionZ >= 90 && this.rotacionZ <= 180? -90: 90);
+        let radianes = this.rotacionZ * (Math.PI / 180);
+        this.x += pasos * Math.cos(radianes);
+        this.y -= pasos * Math.sin(radianes);
+      }
+
+      if (this.rightTop.x > gameScreen.getWidth()) {
+        this.x = gameScreen.getWidth() - this.w;
+        this.rotar(this.rotacionZ >= 0 && this.rotacionZ < 90? 90: -90);
+        let radianes = this.rotacionZ * (Math.PI / 180);
+        this.x += pasos * Math.cos(radianes);
+        this.y -= pasos * Math.sin(radianes);
+      }
+
+      if (this.leftTop.y < 0) {
+        this.y = 0;
+        this.rotar(this.rotacionZ >= 0 && this.rotacionZ <= 90? -90: 90);
+        let radianes = this.rotacionZ * (Math.PI / 180);
+        this.x += pasos * Math.cos(radianes);
+        this.y -= pasos * Math.sin(radianes);
+      }
+
+      if (this.leftBottom.y > gameScreen.getHeight()) {
+        this.y = gameScreen.getHeight() - this.h;
+        this.rotar(this.rotacionZ >= 270 && this.rotacionZ < 360? +90: 90);
+        let radianes = this.rotacionZ * (Math.PI / 180);
+        this.x += pasos * Math.cos(radianes);
+        this.y -= pasos * Math.sin(radianes);
+      }
+
+      //this.irA(this.x, this.y);
     }
+    
+    bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+  }
+
+  transformacionRotacion() {
+    return `rotateY(${this.rotacionY}deg) rotateZ(${-1 * this.rotacionZ}deg)`;
+  }
+
+  rotar(rotacionZ) {
+    this.rotacionZ += rotacionZ;
+    if (this.rotacionZ >= 360) this.rotacionZ = this.rotacionZ - 360;
+    if (this.rotacionZ <= 0 ) this.rotacionZ = 360 + this.rotacionZ;
+
+    // let a = this.rotacionZ;
+    // let v = this.voltear;
+    // if (a > 90 && a <= 270 && v == 'right') {
+    //   this.voltearDisfraz('left');
+    // } else if ((a > 270 && a <= 360 || a >= 0 && a <= 90) && v == 'left') {
+    //   this.voltearDisfraz('right');
+    // }
+
+    this.setCss('transform', this.transformacionRotacion());
+    bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+  }
+
+  establecerAngulo(rotacionZ) {
+    this.rotacionZ = rotacionZ;
+    this.setCss('transform', this.transformacionRotacion());
   }
 
   apuntarHaciaPunteroDelRaton() {
-    this.objeto.css('left', mouseX + 'px');
-    this.objeto.css('top', mouseY + 'px');
+    this.objeto.css('left', (mouseX + 1) + 'px');
+    this.objeto.css('top', (mouseY + 1) + 'px');
   }
 
   agregarDisfraz(nombre, imagen, width, height) {
@@ -129,7 +188,7 @@ class Sprite {
     this.setCss('width', this.w);
     this.setCss('height', this.h);
     this.setCss('height', this.h);
-    this.setCss('transform', `rotateY(${this.anguloRotacion}deg)`);
+    this.voltearDisfraz(this.voltear);
     this.setCss('background-image', 'url(' + this.disfraces.get(disfraz).url + ')');
   }
 
@@ -151,14 +210,15 @@ class Sprite {
     }
   }
 
-  rotar(angulo) {
-    this.anguloRotacion += angulo;
-    this.setCss('transform', `rotateY(${this.anguloRotacion}deg)`);
-  }
-
-  establecerAngulo(angulo) {
-    this.anguloRotacion = angulo;
-    this.setCss('transform', `rotateY(${this.anguloRotacion}deg)`);
+  voltearDisfraz(voltear) {
+    this.voltear = voltear;
+    if (voltear == 'right') {
+      this.rotacionY = 0;
+    }
+    if (voltear == 'left') {
+      this.rotacionY = 180;
+    }
+    this.setCss('transform', this.transformacionRotacion());
   }
 
   agregarSonido(nombre, sonido) {
@@ -178,22 +238,12 @@ class Sprite {
   }
 
   iniciarSonido(sonido) {
-    if (this.audioSonido) {
-      this.detenerSonido();
-    }
-    this.audioSonido = new Audio();
-    this.audioSonido.src = this.sonidos.get(sonido);
-    this.audioSonido.play();
-    // audioSonido.src = this.sonidos.get(sonido);
-    // audioSonido.play();
-    // $('audio').src = this.sonidos.get(sonido);
-    // $('audio').play();
+    this.audioSonido.initSound(this.valorSonido(sonido), 100, false);
+    this.audioSonido.playSound();
   }
 
   detenerSonido() {
-    this.audioSonido.pause();
-    this.audioSonido.currentTime = 0;
-    this.audioSonido = null;
+    this.audioSonido.stopSound();
   }
 
   siguienteSonido() {

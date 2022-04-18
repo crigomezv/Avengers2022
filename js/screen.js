@@ -1,10 +1,18 @@
-class Screen {
+class GameScreen {
 
   constructor(imageName) {
     this.imageName = imageName;
     if (imageName) {
       this.setBackGroundImage(imageName);
     }
+  }
+
+  getWidth() {
+    return $(window).width();
+  }
+
+  getHeight() {
+      return $(window).height();
   }
 
   setBackGroundImage(imageName) {
@@ -17,3 +25,5 @@ class Screen {
     $('body').css('background-size', 'cover');
   }
 }
+
+var gameScreen = new GameScreen();

@@ -1,18 +1,40 @@
-//<script>
 class Blackboard {
   constructor(name, border) {
-    this.name = name;
-    this.id = '#' + name;
+    let uniqueId = new Date().valueOf();
+    this.name = name + '-blackboard-' + uniqueId;
+    this.id = '#' + name + '-blackboard-' + uniqueId;
     this.text = '';
     this.border = `${border}px solid blue`;
+    this.closeButton = `
+      <br><button onclick="$('${this.id}').remove()"
+          class="btn btn-primary" style="margin-top: 5px">
+        Cerrar
+      </button>`;
   }
 
   create() {
     if ($(this.id)) {
-      $('body').append(`<div id="${this.name}"></div>`);
+      $('body').append(`
+        <div id="${this.name}" 
+          style="
+            padding: 5px;
+            position: absolute; 
+            bottom: 0px; 
+            width: 100%; 
+            background-color: white;">
+          <div></div>
+          <div></div>
+        </div>`);
       $(this.id).css('border', this.border);
-      $(this.name).show()
     }
+  }
+
+  show() {
+    $(this.name).show();
+  }
+
+  hide() {
+    $(this.name).hide();
   }
 
   reset() {
@@ -24,15 +46,24 @@ class Blackboard {
   write(text) {
     if ($(this.id)) {
       this.text += text;
-      $(this.id).html(this.text);
+      $(this.id).html(this.text + this.closeButton);
     }
   }
 
   writeln(text) {
     if ($(this.id)) {
-      this.text += '<br>' + text;
-      $(this.id).html(this.text);
+      this.text += this.text !== ''? '<br>' + text : text;
+      $(this.id).html(this.text + this.closeButton);
+    }
+  }
+
+  writeOnlyOneLine(text) {
+    if ($(this.id)) {
+      this.text = text;
+      $(this.id).html(this.text + this.closeButton);
     }
   }
 }
-//</script>
+
+var bb = new Blackboard('pizarra', 4);
+bb.create();
