@@ -1,10 +1,12 @@
+var nuevosGrados = 0;
+
 class Sprite {
-  constructor(nombre, clase, cicloDeVida, x, y, w, h, voltear, rotacionZ, rebotar) {
+  constructor(nombre, clase, cicloDeVida, x, y, w, h, voltear, rotacionZ, rebotar, anguloReboteZ) {
     
     this.id = '#' + nombre;
     this.nombre = nombre;
     this.clase = clase;
-    $('body').append(`<div id="${nombre}" class="${clase}"></div>`); 
+    $('body').append(`<canvas id="${nombre}" class="${clase}"></canvas>`); 
     this.objeto = $(this.id);
     this.cicloDeVida = cicloDeVida;
 
@@ -17,8 +19,13 @@ class Sprite {
     this.h = h;
     
     this.rebotar = rebotar;
+    this.ultimoRebote = 'Sin rebote';
     this.rotacionY = 0;
     this.rotacionZ = rotacionZ;
+    this.anguloReboteZ = anguloReboteZ;
+    //CGV
+    this.rotacionZ = 0;
+    //
     this.voltear = voltear;
     this.voltearDisfraz(this.voltear);
 
@@ -53,7 +60,7 @@ class Sprite {
       this.h = parseInt($(this.id).css('height').replace('px', ''));
       this.calcularEsquinas();
       this.cicloDeVida();
-    }, 1);
+    }, 0);
   }
 
   escribirEnPizarra(texto) {
@@ -84,51 +91,118 @@ class Sprite {
     this.setCss('top',  y + 'px');
   }
 
-  mover(pasos) {
-    let radianes = this.rotacionZ * (Math.PI / 180);
-    this.x += pasos * Math.cos(radianes);
-    this.y -= pasos * Math.sin(radianes);
-    this.calcularEsquinas();
-    this.irA(this.x, this.y);
+  // moverRotando(nuevosGrados, pasos) {
+  //   this.rotar(nuevosGrados);
+  //   let radianes = this.rotacionZ * (Math.PI / 180);
+  //   this.x += Math.round(pasos * Math.cos(radianes));
+  //   this.y -= Math.round(pasos * Math.sin(radianes));
+  //   this.irA(this.x, this.y);
+  //   this.calcularEsquinas();
+  // }
 
+  moverRebotando(pasos) {
+    if (this.anguloReboteZ > 360) {
+      this.anguloReboteZ -= 360;
+    }
+    if (this.anguloReboteZ < 0) {
+      this.anguloReboteZ += 360;
+    }
+    let radianes = this.anguloReboteZ * (Math.PI / 180);
+    this.x += Math.round(pasos * Math.cos(radianes));
+    this.y -= Math.round(pasos * Math.sin(radianes));
+    this.irA(this.x, this.y);
+    this.calcularEsquinas();
+  }
+
+  mover(pasos) {
     if (this.rebotar) {
 
       if (this.leftTop.x < 0) {
         this.x = 0;
-        this.rotar(this.rotacionZ >= 90 && this.rotacionZ <= 180? -90: 90);
-        let radianes = this.rotacionZ * (Math.PI / 180);
-        this.x += pasos * Math.cos(radianes);
-        this.y -= pasos * Math.sin(radianes);
+        let a = this.anguloReboteZ;
+        let u = this.ultimoRebote;
+        if (a >= 90 && a <= 180 && u != 'Up-Right') {
+          //this.anguloReboteZ -= 90;
+          //this.anguloReboteZ = randomIntFromInterval(0, 90);
+          this.anguloReboteZ = randomIntFromInterval(30, 60);
+          this.ultimoRebote = 'Up-Right';
+          this.voltearDisfraz('right');
+        } else {
+          //this.anguloReboteZ += 90;
+          // this.anguloReboteZ = randomIntFromInterval(270, 360);
+          this.anguloReboteZ = randomIntFromInterval(300, 330);
+          this.ultimoRebote = 'Down-Right';
+          this.voltearDisfraz('right');
+        }
       }
-
-      if (this.rightTop.x > gameScreen.getWidth()) {
-        this.x = gameScreen.getWidth() - this.w;
-        this.rotar(this.rotacionZ >= 0 && this.rotacionZ < 90? 90: -90);
-        let radianes = this.rotacionZ * (Math.PI / 180);
-        this.x += pasos * Math.cos(radianes);
-        this.y -= pasos * Math.sin(radianes);
-      }
-
-      if (this.leftTop.y < 0) {
+      else if (this.leftTop.y < 0) {
         this.y = 0;
-        this.rotar(this.rotacionZ >= 0 && this.rotacionZ <= 90? -90: 90);
-        let radianes = this.rotacionZ * (Math.PI / 180);
-        this.x += pasos * Math.cos(radianes);
-        this.y -= pasos * Math.sin(radianes);
+        let a = this.anguloReboteZ;
+        let u = this.ultimoRebote;
+        if (a >= 0 && a <= 90 && u != 'Down-Right') {
+          //this.anguloReboteZ -= 90;
+          // this.anguloReboteZ = randomIntFromInterval(270, 360);
+          this.anguloReboteZ = randomIntFromInterval(300, 330);
+          this.ultimoRebote = 'Down-Right';
+          this.voltearDisfraz('right');
+        }
+        else {
+          //this.anguloReboteZ += 90;
+          // this.anguloReboteZ = randomIntFromInterval(180, 270);
+          this.anguloReboteZ = randomIntFromInterval(210, 240);
+          this.ultimoRebote = 'Down-Left';
+          this.voltearDisfraz('left');
+        }
+      }
+      else if (this.rightTop.x > gameScreen.getWidth()) {
+        this.x = gameScreen.getWidth() - this.w;
+        let a = this.anguloReboteZ;
+        let u = this.ultimoRebote;
+        if (a >= 0 && a <= 90 && u != 'Up-Left') {
+          //this.anguloReboteZ += 90;
+          // this.anguloReboteZ = randomIntFromInterval(90, 180);
+          this.anguloReboteZ = randomIntFromInterval(120, 150);
+          this.ultimoRebote = 'Up-Left';
+          this.voltearDisfraz('left');
+        }
+        else {
+          //this.anguloReboteZ -= 90;
+          // this.anguloReboteZ = randomIntFromInterval(180, 270);
+          this.anguloReboteZ = randomIntFromInterval(210, 240);
+          this.ultimoRebote = 'Down-Left';
+          this.voltearDisfraz('left');
+        }
       }
 
-      if (this.leftBottom.y > gameScreen.getHeight()) {
+      else if (this.leftBottom.y > gameScreen.getHeight()) {
         this.y = gameScreen.getHeight() - this.h;
-        this.rotar(this.rotacionZ >= 270 && this.rotacionZ < 360? +90: 90);
-        let radianes = this.rotacionZ * (Math.PI / 180);
-        this.x += pasos * Math.cos(radianes);
-        this.y -= pasos * Math.sin(radianes);
+        let a = this.anguloReboteZ;
+        let u = this.ultimoRebote;
+        if (a >= 270 && a <= 360 && u != 'Up-Right') {
+          //this.anguloReboteZ += 90;
+          // this.anguloReboteZ = randomIntFromInterval(0, 90);
+          this.anguloReboteZ = randomIntFromInterval(30, 60);
+          this.ultimoRebote = 'Up-Right';
+        }
+        else {
+          //this.anguloReboteZ -= 90;
+          // this.anguloReboteZ = randomIntFromInterval(90, 180);
+          this.anguloReboteZ = randomIntFromInterval(120, 150);
+          this.ultimoRebote = 'Up-Left';
+        }
       }
-
-      //this.irA(this.x, this.y);
     }
-    
-    bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+    // var canvas = document.getElementById('coords');
+    // var context = canvas.getContext('2d');
+    // context.beginPath();
+    // context.strokeStyle = '##FF0000';
+    // context.moveTo(10, 90);      // Bottom left
+    // context.lineTo(10, 50);      // Up
+    // context.lineTo(10 + 40, 50); // Right
+    // context.lineTo(10 + 40, 90); // Down
+    // context.lineTo(10 + 80, 90); // Right
+    this.moverRebotando(pasos);
+    bb.writeOnlyOneLine(`ultimoRebote: ${this.ultimoRebote} angulo: ${this.anguloReboteZ}° x: ${parseInt(this.x)} y: ${parseInt(this.y)} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
   }
 
   transformacionRotacion() {
@@ -136,6 +210,7 @@ class Sprite {
   }
 
   rotar(rotacionZ) {
+    return;
     this.rotacionZ += rotacionZ;
     if (this.rotacionZ >= 360) this.rotacionZ = this.rotacionZ - 360;
     if (this.rotacionZ <= 0 ) this.rotacionZ = 360 + this.rotacionZ;
@@ -149,11 +224,11 @@ class Sprite {
     // }
 
     this.setCss('transform', this.transformacionRotacion());
-    bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+    //bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
   }
 
   establecerAngulo(rotacionZ) {
-    this.rotacionZ = rotacionZ;
+    //this.rotacionZ = rotacionZ;
     this.setCss('transform', this.transformacionRotacion());
   }
 
