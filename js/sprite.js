@@ -1,92 +1,83 @@
-var nuevosGrados = 0;
-
 class Sprite {
-  constructor(nombre, clase, cicloDeVida, x, y, w, h, voltear, rotacionZ, rebotar, anguloReboteZ) {
+  constructor(name, className, lifeCycleFunction, x, y, w, h, flip, rotateZ, ifOnEdgeBounce, bounceAngleZ) {
     
-    this.id = '#' + nombre;
-    this.nombre = nombre;
-    this.clase = clase;
-    $('body').append(`<canvas id="${nombre}" class="${clase}"></canvas>`); 
-    this.objeto = $(this.id);
-    this.cicloDeVida = cicloDeVida;
+    this.id = '#' + name;
+    this.name = name;
+    this.className = className;
+    $('body').append(`<div id="${name}" class="${className}"></div>`); 
+    this.HTMLElement = $(this.id);
+    this.lifeCycleFunction = lifeCycleFunction;
 
-    this.esconder();
-    this.estaVisible = false;
+    this.hide();
+    this.isVisible = false;
     
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     
-    this.rebotar = rebotar;
-    this.ultimoRebote = 'Sin rebote';
-    this.rotacionY = 0;
-    this.rotacionZ = rotacionZ;
-    this.anguloReboteZ = anguloReboteZ;
-    //CGV
-    this.rotacionZ = 0;
-    //
-    this.voltear = voltear;
-    this.voltearDisfraz(this.voltear);
+    this.ifOnEdgeBounce = ifOnEdgeBounce;
+    this.directionOfLastBounce = 'no-bounce';
+    this.rotateY = 0;
+    this.rotateZ = rotateZ;
+    this.bounceAngleZ = bounceAngleZ;
+    this.flip = flip;
+    this.flipCostume(this.flip);
 
-    this.irA(x, y);
+    this.goTo(x, y);
 
-    this.disfraces = new Map();
-    this.disfrazActual = '';
-    this.disfrazActualValor = ''
-    this.disfrazActualIndice = -1;
+    this.costumes = new Map();
+    this.currentConstume = '';
+    this.currentCostumeValue = ''
+    this.currentCostumeIndex = -1;
 
-    this.sonidos = new Map();
-    this.sonidoActual = '';
-    this.sonidoActualValor = ''
-    this.sonidoActualIndice = -1;
-    this.audioSonido = new Sound();
+    this.sounds = new SoundMap();
 
-    this.relojCicloDeVida = null;
+    this.lifeCycleClock = null;
   }
 
-  calcularEsquinas() {
+  calculateCorners() {
     this.leftTop = new Point(this.x, this.y);
     this.rightTop = new Point(this.x + this.w, this.y);
     this.leftBottom = new Point(this.x, this.y + this.h);
     this.rightBottom = new Point(this.x + this.w, this.y + this.h);
   }
 
-  comenzarCicloDeVida() {
-    this.relojCicloDeVida = setInterval(() => {
+  startLifeCycle() {
+    this.lifeCycleClock = setInterval(() => {
       this.x = parseInt($(this.id).css('left').replace('px', ''));
       this.y = parseInt($(this.id).css('top').replace('px', ''));
       this.w = parseInt($(this.id).css('width').replace('px', ''));
       this.h = parseInt($(this.id).css('height').replace('px', ''));
-      this.calcularEsquinas();
-      this.cicloDeVida();
+      this.calculateCorners();
+      this.lifeCycleFunction();
     }, 0);
   }
 
-  escribirEnPizarra(texto) {
-    $('#pizarra_' + this.nombre).html(texto);
+  writeOnTheBoard(html) {
+    $(`#${this.name}_board`).html(html);
   }
 
-  escribirCoordenadasEnPizarra() {
-    $('#pizarra_' + this.nombre).html(`x: ${this.x} y: ${this.y} w: ${this.w} h: ${this.h}`);
+  writeCoordinatesOnTheBoard() {
+    $(`#${this.name}_board`).html(`x: ${this.x} y: ${this.y} w: ${this.w} h: ${this.h}`);
   }
 
-  detenerCicloDeVida() {
-    clearInterval(this.relojCicloDeVida);
+  stopLifeCycle() {
+    clearInterval(this.lifeCycleClock);
   }
 
-  getCss(propiedad) {
-    return this.objeto.css(propiedad);
+  getCss(propertyName) {
+    return this.HTMLElement.css(propertyName);
   }
 
-  setCss(propiedad, valor) {
-    this.objeto.css(propiedad, valor);
+  setCss(propertyName, value) {
+    this.HTMLElement.css(propertyName, value);
   }
 
-  irA(x, y) {
+  goTo(x, y) {
     this.x = x;
     this.y = y;
-    this.calcularEsquinas();
+    this.calculateCorners();
     this.setCss('left', x + 'px');
     this.setCss('top',  y + 'px');
   }
@@ -100,282 +91,233 @@ class Sprite {
   //   this.calcularEsquinas();
   // }
 
-  moverRebotando(pasos) {
-    if (this.anguloReboteZ > 360) {
-      this.anguloReboteZ -= 360;
-    }
-    if (this.anguloReboteZ < 0) {
-      this.anguloReboteZ += 360;
-    }
-    let radianes = this.anguloReboteZ * (Math.PI / 180);
-    this.x += Math.round(pasos * Math.cos(radianes));
-    this.y -= Math.round(pasos * Math.sin(radianes));
-    this.irA(this.x, this.y);
-    this.calcularEsquinas();
+  getRandomIntFromInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
   }
 
-  mover(pasos) {
-    if (this.rebotar) {
+  moveBouncing(steps) {
+    if (this.bounceAngleZ > 360) {
+      this.bounceAngleZ -= 360;
+    }
+    if (this.bounceAngleZ < 0) {
+      this.bounceAngleZ += 360;
+    }
+    let radians = this.bounceAngleZ * (Math.PI / 180);
+    this.x += Math.round(steps * Math.cos(radians));
+    this.y -= Math.round(steps * Math.sin(radians));
+    this.goTo(this.x, this.y);
+    this.calculateCorners();
+  }
+
+  move(steps) {
+    if (this.ifOnEdgeBounce) {
 
       if (this.leftTop.x < 0) {
         this.x = 0;
-        let a = this.anguloReboteZ;
-        let u = this.ultimoRebote;
-        if (a >= 90 && a <= 180 && u != 'Up-Right') {
-          //this.anguloReboteZ -= 90;
-          //this.anguloReboteZ = randomIntFromInterval(0, 90);
-          this.anguloReboteZ = randomIntFromInterval(30, 60);
-          this.ultimoRebote = 'Up-Right';
-          this.voltearDisfraz('right');
+        let a = this.bounceAngleZ;
+        let u = this.directionOfLastBounce;
+        if (a >= 90 && a <= 180 && u != 'up-right') {
+          //this.bounceAngleZ -= 90;
+          //this.bounceAngleZ = this.getRandomIntFromInterval(0, 90);
+          this.bounceAngleZ = this.getRandomIntFromInterval(30, 60);
+          this.directionOfLastBounce = 'up-right';
+          this.flipCostume('right');
         } else {
-          //this.anguloReboteZ += 90;
-          // this.anguloReboteZ = randomIntFromInterval(270, 360);
-          this.anguloReboteZ = randomIntFromInterval(300, 330);
-          this.ultimoRebote = 'Down-Right';
-          this.voltearDisfraz('right');
+          //this.bounceAngleZ += 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(270, 360);
+          this.bounceAngleZ = this.getRandomIntFromInterval(300, 330);
+          this.directionOfLastBounce = 'down-right';
+          this.flipCostume('right');
         }
       }
       else if (this.leftTop.y < 0) {
         this.y = 0;
-        let a = this.anguloReboteZ;
-        let u = this.ultimoRebote;
-        if (a >= 0 && a <= 90 && u != 'Down-Right') {
-          //this.anguloReboteZ -= 90;
-          // this.anguloReboteZ = randomIntFromInterval(270, 360);
-          this.anguloReboteZ = randomIntFromInterval(300, 330);
-          this.ultimoRebote = 'Down-Right';
-          this.voltearDisfraz('right');
+        let a = this.bounceAngleZ;
+        let u = this.directionOfLastBounce;
+        if (a >= 0 && a <= 90 && u != 'down-right') {
+          //this.bounceAngleZ -= 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(270, 360);
+          this.bounceAngleZ = this.getRandomIntFromInterval(300, 330);
+          this.directionOfLastBounce = 'down-right';
+          this.flipCostume('right');
         }
         else {
-          //this.anguloReboteZ += 90;
-          // this.anguloReboteZ = randomIntFromInterval(180, 270);
-          this.anguloReboteZ = randomIntFromInterval(210, 240);
-          this.ultimoRebote = 'Down-Left';
-          this.voltearDisfraz('left');
+          //this.bounceAngleZ += 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(180, 270);
+          this.bounceAngleZ = this.getRandomIntFromInterval(210, 240);
+          this.directionOfLastBounce = 'down-left';
+          this.flipCostume('left');
         }
       }
       else if (this.rightTop.x > gameScreen.getWidth()) {
         this.x = gameScreen.getWidth() - this.w;
-        let a = this.anguloReboteZ;
-        let u = this.ultimoRebote;
-        if (a >= 0 && a <= 90 && u != 'Up-Left') {
-          //this.anguloReboteZ += 90;
-          // this.anguloReboteZ = randomIntFromInterval(90, 180);
-          this.anguloReboteZ = randomIntFromInterval(120, 150);
-          this.ultimoRebote = 'Up-Left';
-          this.voltearDisfraz('left');
+        let a = this.bounceAngleZ;
+        let u = this.directionOfLastBounce;
+        if (a >= 0 && a <= 90 && u != 'up-left') {
+          //this.bounceAngleZ += 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(90, 180);
+          this.bounceAngleZ = this.getRandomIntFromInterval(120, 150);
+          this.directionOfLastBounce = 'up-left';
+          this.flipCostume('left');
         }
         else {
-          //this.anguloReboteZ -= 90;
-          // this.anguloReboteZ = randomIntFromInterval(180, 270);
-          this.anguloReboteZ = randomIntFromInterval(210, 240);
-          this.ultimoRebote = 'Down-Left';
-          this.voltearDisfraz('left');
+          //this.bounceAngleZ -= 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(180, 270);
+          this.bounceAngleZ = this.getRandomIntFromInterval(210, 240);
+          this.directionOfLastBounce = 'down-left';
+          this.flipCostume('left');
         }
       }
-
       else if (this.leftBottom.y > gameScreen.getHeight()) {
         this.y = gameScreen.getHeight() - this.h;
-        let a = this.anguloReboteZ;
-        let u = this.ultimoRebote;
-        if (a >= 270 && a <= 360 && u != 'Up-Right') {
-          //this.anguloReboteZ += 90;
-          // this.anguloReboteZ = randomIntFromInterval(0, 90);
-          this.anguloReboteZ = randomIntFromInterval(30, 60);
-          this.ultimoRebote = 'Up-Right';
+        let a = this.bounceAngleZ;
+        let u = this.directionOfLastBounce;
+        if (a >= 270 && a <= 360 && u != 'up-right') {
+          //this.bounceAngleZ += 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(0, 90);
+          this.bounceAngleZ = this.getRandomIntFromInterval(30, 60);
+          this.directionOfLastBounce = 'up-right';
         }
         else {
-          //this.anguloReboteZ -= 90;
-          // this.anguloReboteZ = randomIntFromInterval(90, 180);
-          this.anguloReboteZ = randomIntFromInterval(120, 150);
-          this.ultimoRebote = 'Up-Left';
+          //this.bounceAngleZ -= 90;
+          // this.bounceAngleZ = this.getRandomIntFromInterval(90, 180);
+          this.bounceAngleZ = this.getRandomIntFromInterval(120, 150);
+          this.directionOfLastBounce = 'up-left';
         }
       }
     }
-    // var canvas = document.getElementById('coords');
-    // var context = canvas.getContext('2d');
-    // context.beginPath();
-    // context.strokeStyle = '##FF0000';
-    // context.moveTo(10, 90);      // Bottom left
-    // context.lineTo(10, 50);      // Up
-    // context.lineTo(10 + 40, 50); // Right
-    // context.lineTo(10 + 40, 90); // Down
-    // context.lineTo(10 + 80, 90); // Right
-    this.moverRebotando(pasos);
-    bb.writeOnlyOneLine(`ultimoRebote: ${this.ultimoRebote} angulo: ${this.anguloReboteZ}° x: ${parseInt(this.x)} y: ${parseInt(this.y)} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+    this.moveBouncing(steps);
+    bb.writeOnlyOneLine(`lastBounce: ${this.directionOfLastBounce} `
+      + `angle: ${this.bounceAngleZ}° `
+      + `x: ${parseInt(this.x)} `
+      + `y: ${parseInt(this.y)} `
+      + `screenWidth: ${gameScreen.getWidth()} `
+      + `screenHeight: ${gameScreen.getHeight()}`);
   }
 
-  transformacionRotacion() {
-    return `rotateY(${this.rotacionY}deg) rotateZ(${-1 * this.rotacionZ}deg)`;
+  rotationTransform() {
+    return `rotateY(${this.rotateY}deg) rotateZ(${-1 * this.rotateZ}deg)`;
   }
 
-  rotar(rotacionZ) {
+  rotate(rotateZ) {
     return;
-    this.rotacionZ += rotacionZ;
-    if (this.rotacionZ >= 360) this.rotacionZ = this.rotacionZ - 360;
-    if (this.rotacionZ <= 0 ) this.rotacionZ = 360 + this.rotacionZ;
+    this.rotateZ += rotateZ;
+    if (this.rotateZ >= 360) this.rotateZ = this.rotateZ - 360;
+    if (this.rotateZ <= 0 ) this.rotateZ = 360 + this.rotateZ;
 
-    // let a = this.rotacionZ;
-    // let v = this.voltear;
-    // if (a > 90 && a <= 270 && v == 'right') {
-    //   this.voltearDisfraz('left');
-    // } else if ((a > 270 && a <= 360 || a >= 0 && a <= 90) && v == 'left') {
-    //   this.voltearDisfraz('right');
+    // let a = this.rotateZ;
+    // let f = this.flip;
+    // if (a > 90 && a <= 270 && f == 'right') {
+    //   this.flipCostume('left');
+    // } else if ((a > 270 && a <= 360 || a >= 0 && a <= 90) && f == 'left') {
+    //   this.flipCostume('right');
     // }
 
-    this.setCss('transform', this.transformacionRotacion());
-    //bb.writeOnlyOneLine(`rotacionZ: ${this.rotacionZ} x: ${this.x} y: ${this.y} ancho: ${gameScreen.getWidth()} altura: ${gameScreen.getHeight()}`);
+    this.setCss('transform', this.rotationTransform());
+    //bb.writeOnlyOneLine(`rotateZ: ${this.rotateZ} x: ${this.x} y: ${this.y} screenWidth: ${gameScreen.getWidth()} screenHeight: ${gameScreen.getHeight()}`);
   }
 
-  establecerAngulo(rotacionZ) {
-    //this.rotacionZ = rotacionZ;
-    this.setCss('transform', this.transformacionRotacion());
+  pointTowardsMousePointer() {
+    this.HTMLElement.css('left', (mouseX + 1) + 'px');
+    this.HTMLElement.css('top', (mouseY + 1) + 'px');
   }
 
-  apuntarHaciaPunteroDelRaton() {
-    this.objeto.css('left', (mouseX + 1) + 'px');
-    this.objeto.css('top', (mouseY + 1) + 'px');
+  addCostume(costumeName, image, width, height) {
+    this.costumes.set(costumeName, {url: 'disfraces/' + image, width: width, height: height});
   }
 
-  agregarDisfraz(nombre, imagen, width, height) {
-    this.disfraces.set(nombre, {url: 'disfraces/' + imagen, width: width, height: height});
+  getCostumeCount() {
+    return this.costumes.size;
   }
 
-  cantidadDisfraces() {
-    return this.disfraces.size;
+  getCostumeIndexByName(costumeName) {
+    return Array.from(this.costumes.keys()).indexOf(costumeName);
   }
 
-  indiceDisfraz(disfraz) {
-    return Array.from(this.disfraces.keys()).indexOf(disfraz);
+  getCostumeValue(costumeName) {
+    return this.costumes.get(costumeName);
   }
 
-  valorDisfraz(disfraz) {
-    return this.disfraces.get(disfraz);
-  }
-
-  cambiarDisfrazA(disfraz) {
-    this.disfrazActual = disfraz;
-    this.disfrazActualValor = this.valorDisfraz(disfraz);
-    this.disfrazActualIndice = this.indiceDisfraz(disfraz);
-    this.w = this.disfraces.get(disfraz).width;
-    this.h = this.disfraces.get(disfraz).height; 
-    this.calcularEsquinas();
+  switchCostumeTo(costumeName) {
+    this.currentConstume = costumeName;
+    this.currentCostumeValue = this.getCostumeValue(costumeName);
+    this.currentCostumeIndex = this.getCostumeIndexByName(costumeName);
+    this.w = this.costumes.get(costumeName).width;
+    this.h = this.costumes.get(costumeName).height; 
+    this.calculateCorners();
     this.setCss('width', this.w);
     this.setCss('height', this.h);
     this.setCss('height', this.h);
-    this.voltearDisfraz(this.voltear);
-    this.setCss('background-image', 'url(' + this.disfraces.get(disfraz).url + ')');
+    this.flipCostume(this.flip);
+    this.setCss('background-image', 'url(' + this.costumes.get(costumeName).url + ')');
   }
 
-  siguienteDisfraz() {
-    if (this.disfraces.size > 0) {
-      if (this.disfrazActual == '') {
-        this.disfrazActual = Array.from(this.disfraces)[0][0];
-        this.disfrazActualValor = this.valorDisfraz(this.disfrazActual);
-        this.disfrazActualIndice = this.indiceDisfraz(this.disfrazActual);
+  nextCostume() {
+    if (this.costumes.size > 0) {
+      if (this.currentConstume == '') {
+        this.currentConstume = Array.from(this.costumes)[0][0];
+        this.currentCostumeValue = this.getCostumeValue(this.currentConstume);
+        this.currentCostumeIndex = this.getCostumeIndexByName(this.currentConstume);
       }
       else {
-        ++this.disfrazActualIndice;
-        if (this.disfrazActualIndice >= this.disfraces.size) {
-          this.disfrazActualIndice = 0;
+        ++this.currentCostumeIndex;
+        if (this.currentCostumeIndex >= this.costumes.size) {
+          this.currentCostumeIndex = 0;
         }
-        this.disfrazActual = Array.from(this.disfraces)[this.disfrazActualIndice][0];
-        this.disfrazActualValor = this.valorDisfraz(this.disfrazActual);
+        this.currentConstume = Array.from(this.costumes)[this.currentCostumeIndex][0];
+        this.currentCostumeValue = this.getCostumeValue(this.currentConstume);
       }
     }
   }
 
-  voltearDisfraz(voltear) {
-    this.voltear = voltear;
-    if (voltear == 'right') {
-      this.rotacionY = 0;
+  flipCostume(flip) {
+    this.flip = flip;
+    if (flip == 'right') {
+      this.rotateY = 0;
     }
-    if (voltear == 'left') {
-      this.rotacionY = 180;
+    if (flip == 'left') {
+      this.rotateY = 180;
     }
-    this.setCss('transform', this.transformacionRotacion());
+    this.setCss('transform', this.rotationTransform());
+  }
+ 
+  switchCostumeToWithSound(customName, soundName) {
+    this.switchCostumeTo(customName);
+    this.sounds.getSoundByName(soundName).playSound();
   }
 
-  agregarSonido(nombre, sonido) {
-    this.sonidos.set(nombre, sonido);
-  }
+  touchingTo(sprite) {
+    let thisLT = this.pointIsInside(this.leftTop, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
+    let thisRT = this.pointIsInside(this.rightTop, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
+    let thisRB = this.pointIsInside(this.rightBottom, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
+    let thisLB = this.pointIsInside(this.leftBottom, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
 
-  cantidadSonidos() {
-    return this.sonidos.size;
-  }
+    let spriteLT = this.pointIsInside(sprite.leftTop, this.leftTop, this.rightTop, this.leftBottom);
+    let spriteRT = this.pointIsInside(sprite.rightTop, this.leftTop, this.rightTop, this.leftBottom);
+    let spriteRB = this.pointIsInside(sprite.rightBottom, this.leftTop, this.rightTop, this.leftBottom);
+    let spriteLB = this.pointIsInside(sprite.leftBottom, this.leftTop, this.rightTop, this.leftBottom);
 
-  indiceSonido(sonido) {
-    return Array.from(this.sonidos.keys()).indexOf(sonido);
-  }
-
-  valorSonido(sonido) {
-    return this.sonidos.get(sonido);
-  }
-
-  iniciarSonido(sonido) {
-    this.audioSonido.initSound(this.valorSonido(sonido), 100, false);
-    this.audioSonido.playSound();
-  }
-
-  detenerSonido() {
-    this.audioSonido.stopSound();
-  }
-
-  siguienteSonido() {
-    if (this.sonidos.size > 0) {
-      if (this.sonidoActual == '') {
-        this.sonidoActual = Array.from(this.sonidos)[0][0];
-        this.sonidoActualValor = this.valorSonido(this.sonidoActual);
-        this.sonidoActualIndice = this.indiceSonido(this.sonidoActual);
-      }
-      else {
-        ++this.sonidoActualIndice;
-        if (this.sonidoActualIndice >= this.sonidos.size) {
-          this.sonidoActualIndice = 0;
-        }
-        this.sonidoActual = Array.from(this.sonidos)[this.sonidoActualIndice][0];
-        this.sonidoActualValor = this.valorSonido(this.sonidoActual);
-      }
-    }
-  }
-
-  cambiarDisfrazConSonido(disfraz, sonido) {
-    this.cambiarDisfrazA(disfraz);
-    this.iniciarSonido(sonido);
-  }
-
-  tocando(sprite) {
-    let thisLT = this.puntoEstaDentro(this.leftTop, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
-    let thisRT = this.puntoEstaDentro(this.rightTop, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
-    let thisRB = this.puntoEstaDentro(this.rightBottom, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
-    let thisLB = this.puntoEstaDentro(this.leftBottom, sprite.leftTop, sprite.rightTop, sprite.leftBottom);
-
-    let spriteLT = this.puntoEstaDentro(sprite.leftTop, this.leftTop, this.rightTop, this.leftBottom);
-    let spriteRT = this.puntoEstaDentro(sprite.rightTop, this.leftTop, this.rightTop, this.leftBottom);
-    let spriteRB = this.puntoEstaDentro(sprite.rightBottom, this.leftTop, this.rightTop, this.leftBottom);
-    let spriteLB = this.puntoEstaDentro(sprite.leftBottom, this.leftTop, this.rightTop, this.leftBottom);
-
-    // let texto = '';
-    // texto += `${this.nombre} LT(${thisLT}) RT(${thisRT}) RB(${thisRB}) LB(${thisLB})<br>`;
-    // texto += `${sprite.nombre} LT(${spriteLT}) RT(${spriteRT}) RB(${spriteRB}) LB(${spriteLB})<br>`;
-    // escribirEnPizarraComun(texto);
+    // let html = '';
+    // html += `${this.name} LT(${thisLT}) RT(${thisRT}) RB(${thisRB}) LB(${thisLB})<br>`;
+    // html += `${sprite.name} LT(${spriteLT}) RT(${spriteRT}) RB(${spriteRB}) LB(${spriteLB})<br>`;
+    // bb.writeOnlyOneLine((html);
 
     return (thisLT || thisRT || thisRB || thisLB || spriteLT || spriteRT || spriteRB || spriteLB);
   }
 
-  puntoEstaDentro(punto, leftTop, rightTop, leftBottom) {
-    let checkX = punto.x >= leftTop.x && punto.x <= rightTop.x;
-    let checkY = punto.y >= leftTop.y && punto.y <= leftBottom.y;
+  pointIsInside(point, leftTop, rightTop, leftBottom) {
+    let checkX = point.x >= leftTop.x && point.x <= rightTop.x;
+    let checkY = point.y >= leftTop.y && point.y <= leftBottom.y;
     return checkX && checkY;
   }
 
-  mostrar() {
-    this.objeto.show();
-    this.estaVisible = true;
+  show() {
+    this.HTMLElement.show();
+    this.isVisible = true;
   }
 
-  esconder() {
-    this.objeto.hide();
-    this.estaVisible = false;
+  hide() {
+    this.HTMLElement.hide();
+    this.isVisible = false;
   }
 }

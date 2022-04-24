@@ -11,7 +11,7 @@ class SoundButtons {
 
     let dialogHTML =
       `<div id="${'snd-dialog-' + uniqueId}" 
-          title="Ajustes de sonido">
+          title="Sound settings">
         <span id="${'snd-volume-' + uniqueId }">
           Volumen: ${soundObject.getVolumePercent()}
         </span>
@@ -38,7 +38,7 @@ class SoundButtons {
       height: 'auto', 
       width: 'auto', 
       modal: true, 
-      title: 'Ajustes de sonido',
+      title: 'Sound settings',
       show: {
         effect: 'explode', 
         duration: 1000,

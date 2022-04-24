@@ -1,146 +1,147 @@
 $(document).ready(function(){
+
   gameScreen.setBackGroundImage('fondo.jpg');
   var mouse = new Mouse();
-  var musica = new Sound('capsong2.mp3', 50, true);
-  var puntaje = 0;
-  var vidas = 3;
-  var tocado = false;
-  var fechaDeMuerte = null;
+  var backgroudMusic = new Sound('capsong', 'sounds/', 'capsong2.mp3', 50, true);
+  var score = 0;
+  var lifes = 3;
+  var touched = false;
+  var deathDate = null;
 
-  $("#ajustes").click(function(){
-    new SoundButtons(musica);
+  $("#settings").click(function(){
+    new SoundButtons(backgroudMusic);
   });
 
-  var relojCicloDeVida = null;
+  var lifeCycleClock = null;
 
-  // let cap = new Sprite('cap', 'cap', cicloDeVidaCap, 0, 0, 250, 90, '', 0, false);
-  // cap.agregarDisfraz('capwalk', 'capwalk.gif', 103, 126);
-  // cap.agregarDisfraz('capshield', 'capshield.gif', 200, 150);
-  // cap.agregarDisfraz('caphand', 'caphand.gif', 237, 122);
-  // cap.agregarDisfraz('capdeath', 'capdeath.gif', 103, 126);
-  // cap.cambiarDisfrazA('capwalk');
-  // cap.agregarSonido('capshield0', 'capshield0.mp3');
-  // cap.agregarSonido('capshield1', 'capshield1.mp3');
-  // cap.agregarSonido('capshield2', 'capshield2.mp3');
-  // cap.agregarSonido('capshield3', 'capshield3.mp3');
-  // cap.agregarSonido('capshield4', 'capshield4.mp3');
-  // cap.agregarSonido('capshield5', 'capshield5.mp3');
-  // cap.agregarSonido('capshield6', 'capshield6.mp3');
-  // cap.agregarSonido('capshield7', 'capshield7.mp3');
-  // cap.agregarSonido('cappain', 'cappain.mp3');
+  let cap = new Sprite('cap', 'cap', capLifeCycle, 0, 0, 250, 90, 'right', 0, false);
+  cap.addCostume('capwalk', 'capwalk.gif', 103, 126);
+  cap.addCostume('capshield', 'capshield.gif', 200, 150);
+  cap.addCostume('caphand', 'caphand.gif', 237, 122);
+  cap.addCostume('capdeath', 'capdeath.gif', 103, 126);
+  cap.switchCostumeTo('capwalk');
+  cap.sounds.addSound(new Sound('capshield0', 'sounds/', 'capshield0.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield1', 'sounds/', 'capshield1.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield2', 'sounds/', 'capshield2.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield3', 'sounds/', 'capshield3.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield4', 'sounds/', 'capshield4.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield5', 'sounds/', 'capshield5.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield6', 'sounds/', 'capshield6.mp3', 50, false));
+  cap.sounds.addSound(new Sound('capshield7', 'sounds/', 'capshield7.mp3', 50, false));
+  cap.sounds.addSound(new Sound('cappain', 'sounds/', 'cappain.mp3', 50, false));
+
+  let chi = new Sprite('chi', 'chi', chiLifeCycle, 200, 200, 200, 144, 'right', 0, true, 135);
+  chi.addCostume('chitauri', 'navechit4.png', 200, 144);
+  chi.switchCostumeTo('chitauri');
+  chi.sounds.addSound(new Sound('gritoshi1', 'sounds/', 'tackle.mp3', 50, false));
   
-  let chi = new Sprite('chi', 'chi', cicloDeVidaChi, 200, 200, 200, 144, 'right', 45, true, 135);
-  chi.agregarDisfraz('chitauri', 'navechit4.png', 200, 144);
-  chi.cambiarDisfrazA('chitauri');
-  chi.agregarSonido('gritoshi1', 'tackle.mp3');
-  
-  $('#comenzar').click(function(){ 
+  $('#startGame').click(function(){ 
     
     $(document).keydown(function(e) {
       var key = e.keyCode || e.which;
       if (key == 49) {
-        // cap.cambiarDisfrazConSonido('capshield', cap.sonidoActual);
-        // cap.siguienteSonido();
-        // if (cap.sonidoActual == 'cappain') cap.siguienteSonido();
+        cap.switchCostumeToWithSound('capshield', cap.sounds.getCurrentSoundName());
+        cap.sounds.nextSound();
+        if (cap.sounds.getCurrentSoundName() == 'cappain') cap.sounds.nextSound();
       }
-      if (key == 50) cap.cambiarDisfrazA('caphand');
-      if (key == 51) chi.anguloReboteZ += 10;
-      if (key == 52) chi.anguloReboteZ -= 10;
-      if (key == 53) chi.irA(400, 400);
+      if (key == 50) cap.switchCostumeTo('caphand');
+      if (key == 51) chi.bounceAngleZ += 10;
+      if (key == 52) chi.bounceAngleZ -= 10;
+      if (key == 53) chi.goTo(400, 400);
       setTimeout(function() { 
-        //cap.cambiarDisfrazA('capwalk');
+        cap.switchCostumeTo('capwalk');
        }, 500);
     });
     
-    musica.playSound();
-    //mostrarVidas()
+    backgroudMusic.playSound();
+    showLifes();
 
-    puntaje = 0;
-    vidas = 3;
-    tocado = false;
-    fechaDeMuerte = null;
+    score = 0;
+    lifes = 3;
+    touched = false;
+    deathDate = null;
 
-    //musica.playSound();
+    cap.bounceAngleZ = 0;
+    cap.flipCostume('right');
+    cap.goTo(0, 60);
+    cap.show();
+    cap.startLifeCycle();
     
-    // cap.establecerAngulo(0);
-    // cap.voltearDisfraz('right');
-    // cap.irA(0, 60);
-    // cap.mostrar();
-    // cap.comenzarCicloDeVida();
-    
-    chi.establecerAngulo(315);
-    chi.voltearDisfraz('right');
-    chi.irA(500, 700);
-    chi.mostrar();
-    chi.comenzarCicloDeVida();
+    chi.bounceAngleZ = 315;
+    chi.flipCostume('right');
+    chi.goTo(500, 700);
+    chi.show();
+    chi.startLifeCycle();
 
-    relojCicloDeVida = setInterval(cicloDeVidaDelJuego);
+    lifeCycleClock = setInterval(gameLifeCycle);
   });
 
-  $('#detener').click(function(){
-    musica.stopSound();
-    clearInterval(relojCicloDeVida);
-    //cap.detenerCicloDeVida();
-    chi.detenerCicloDeVida();
-    //cap.esconder();
-    chi.esconder();
+  $('#stopGame').click(function(){
+    backgroudMusic.stopSound();
+    clearInterval(lifeCycleClock);
+    cap.stopLifeCycle()
+    chi.stopLifeCycle();
+    cap.hide();
+    chi.hide();
   });
 
-  function cicloDeVidaDelJuego() {
-    // if (mouseX >= cap.x + 3) cap.voltearDisfraz('right');
-    // if (mouseX <= cap.x - 3) cap.voltearDisfraz('left');
-    //cap.apuntarHaciaPunteroDelRaton();
+  function gameLifeCycle() {
+    if (mouseX >= cap.x + 3) cap.flipCostume('right');
+    if (mouseX <= cap.x - 3) cap.flipCostume('left');
+    cap.pointTowardsMousePointer();
   }
 
-  function cicloDeVidaCap() {
-    // if (cap.tocando(chi)) {
-    //   if (!tocado) {
-    //     if (cap.disfrazActual == 'capshield' || cap.disfrazActual == 'caphand') {
-    //       chi.iniciarSonido('gritoshi1');
-    //       puntaje += 1;
-    //       chi.esconder();
-    //     } 
-    //     else if (chi.estaVisible) {
-    //       cap.iniciarSonido('cappain');
-    //       fechaDeMuerte = new Date();
-    //       vidas -= 1;
-    //     }
-    //     mostrarVidas();
-    //     tocado = true;
-    //     if (vidas <= 0) {
-    //       cap.escribirEnPizarra('GAME OVER');
-    //       clearInterval(relojCicloDeVida);
-    //       cap.detenerCicloDeVida();
-    //       chi.detenerCicloDeVida();
-    //       setTimeout(() => $('#detener').click(), 2000);
-    //     }
-    //   }
-    // } 
-    // else {
-    //   tocado = false;
-    // }
+  function capLifeCycle() {
+    if (cap.touchingTo(chi)) {
+      if (!touched) {
+        if (cap.currentConstume == 'capshield' || cap.currentConstume == 'caphand') {
+          chi.sounds.getSoundByName('gritoshi1').playSound();
+          score += 1;
+          chi.hide();
+          chi.goTo(400, 400)
+          chi.show();
+        } 
+        else if (chi.isVisible) {
+          cap.sounds.getSoundByName('cappain').playSound();
+          deathDate = new Date();
+          lifes -= 1;
+        }
+        showLifes();
+        touched = true;
+        if (lifes <= 0) {
+          cap.writeOnTheBoard('GAME OVER');
+          clearInterval(lifeCycleClock);
+          cap.stopLifeCycle();
+          chi.stopLifeCycle();
+          setTimeout(() => $('#stopGame').click(), 2000);
+        }
+      }
+    } 
+    else {
+      touched = false;
+    }
 
-    // if (fechaDeMuerte == null) {
-    //   //bb.writeOnlyOneLine('VIVO');
-    // } else {
-    //   cap.cambiarDisfrazA('capdeath');
-    //   var endDate   = new Date();
-    //   var seconds = (endDate.getTime() - fechaDeMuerte.getTime()) / 1000;
-    //   //bb.writeOnlyOneLine('MUERTE EN ' + seconds + ' SEGUNDOS');
-    //   if (seconds > 0.5) {
-    //     fechaDeMuerte = null;
-    //     cap.cambiarDisfrazA('capwalk');
-    //   }
-    // }
+    if (deathDate == null) {
+      //bb.writeOnlyOneLine('ALIVE');
+    } else {
+      cap.switchCostumeTo('capdeath');
+      var endDate   = new Date();
+      var seconds = (endDate.getTime() - deathDate.getTime()) / 1000;
+      //bb.writeOnlyOneLine('Died ' + seconds + ' seconds');
+      if (seconds > 0.5) {
+        deathDate = null;
+        cap.switchCostumeTo('capwalk');
+      }
+    }
   }
 
-  function cicloDeVidaChi() {
-    chi.mover(1);
+  function chiLifeCycle() {
+    chi.move(1);
   }
 
-  function mostrarVidas() {
-    chi.escribirEnPizarra(`vidas: ${vidas}`);
-    cap.escribirEnPizarra(`puntaje: ${puntaje}`);
+  function showLifes() {
+    chi.writeOnTheBoard(`Lifes: ${lifes}`);
+    cap.writeOnTheBoard(`Score: ${score}`);
   }
 
 });
