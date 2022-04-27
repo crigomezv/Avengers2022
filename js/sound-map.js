@@ -3,12 +3,35 @@ class SoundMap {
   constructor() {
     this.currentSoundIndex = -1;
     this.sounds = new Map();
+    this.ready = false;
+    bb.writeOnlyOneLine('************************************');
+  }
+
+  loadSoundsFromJsonFile(jsonFile) {
+    $.get(jsonFile, (data) => {
+      for (let sound of data.sounds) {
+        this.addSound(sound);
+      }
+    })
+    .then(() => {
+      this.ready = true;
+      bb.writeOnlyOneLine('OK');
+    }, (err) => {
+      throw new Error(err); 
+    });
   }
 
   addSound(sound) {
-    if (!sound) throw new Error('The sound is required');
-    this.sounds.set(sound.getSoundName(), sound);
-    this.currentSoundIndex = this.sounds.size - 1;
+    if (sound === undefined) throw new Error('The sound is required');
+    if (sound instanceof Sound) {
+      this.sounds.set(sound.getSoundName(), sound);
+      this.currentSoundIndex = this.sounds.size - 1;
+    }
+    else {
+      let jsonSound = Sound.createFromJson(sound);
+      this.sounds.set(jsonSound.getSoundName(), jsonSound);
+      this.currentSoundIndex = this.sounds.size - 1;
+    }
   }
 
   existSoundName(soundName) {
@@ -34,17 +57,11 @@ class SoundMap {
 
   getSoundByIndex(soundIndex) {
     this.validateIndexOrError(soundIndex);
-    // this.sounds.Map((currElement, index) => {
-    //   if (index == soundIndex) return currElement;
-    // });
     return Array.from(this.sounds.values())[soundIndex];
   }
 
   getSoundNameByIndex(soundIndex) {
     this.validateIndexOrError();
-    // this.sounds.map((currElement, index) => {
-    //   if (index == soundIndex) return currElement.getSoundName();
-    // });
     return Array.from(this.sounds.values())[soundIndex].getSoundName();
   }
 

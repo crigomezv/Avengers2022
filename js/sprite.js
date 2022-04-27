@@ -50,7 +50,7 @@ class Sprite {
       this.w = parseInt($(this.id).css('width').replace('px', ''));
       this.h = parseInt($(this.id).css('height').replace('px', ''));
       this.calculateCorners();
-      this.lifeCycleFunction();
+      this.lifeCycleFunction(this);
     }, 0);
   }
 
@@ -187,12 +187,12 @@ class Sprite {
       }
     }
     this.moveBouncing(steps);
-    bb.writeOnlyOneLine(`lastBounce: ${this.directionOfLastBounce} `
-      + `angle: ${this.bounceAngleZ}° `
-      + `x: ${parseInt(this.x)} `
-      + `y: ${parseInt(this.y)} `
-      + `screenWidth: ${gameScreen.getWidth()} `
-      + `screenHeight: ${gameScreen.getHeight()}`);
+    // bb.writeOnlyOneLine(`lastBounce: ${this.directionOfLastBounce} `
+    //   + `angle: ${this.bounceAngleZ}° `
+    //   + `x: ${parseInt(this.x)} `
+    //   + `y: ${parseInt(this.y)} `
+    //   + `screenWidth: ${gameScreen.getWidth()} `
+    //   + `screenHeight: ${gameScreen.getHeight()}`);
   }
 
   rotationTransform() {

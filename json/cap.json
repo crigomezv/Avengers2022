@@ -1,0 +1,67 @@
+{
+  "sounds": [
+      {
+        "soundName": "capshield0",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield0.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield1",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield1.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield2",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield2.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield3",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield3.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield4",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield4.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield5",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield5.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield6",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield6.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "capshield7",
+        "soundPath": "sounds/", 
+        "soundFile": "capshield7.mp3",
+        "volume": 50,
+        "loop": false
+      },
+      {
+        "soundName": "cappain",
+        "soundPath": "sounds/", 
+        "soundFile": "cappain.mp3",
+        "volume": 50,
+        "loop": false
+      }
+  ]
+}

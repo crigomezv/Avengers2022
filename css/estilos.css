@@ -25,14 +25,14 @@ body.modal-open {
 
 .cap {
     position: absolute;
-    border: 1px solid blue;
+    /* border: 1px solid blue; */
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .chi {
     position: absolute;
-    border: 1px solid blue;
+    /* border: 1px solid blue; */
     background-repeat: no-repeat;
     background-position: center;
 }

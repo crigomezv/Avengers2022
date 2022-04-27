@@ -1,0 +1,11 @@
+{
+  "sounds": [
+      {
+        "soundName": "gritoshi1",
+        "soundPath": "sounds/", 
+        "soundFile": "tackle.mp3",
+        "volume": 50,
+        "loop": false
+      }
+  ]
+}

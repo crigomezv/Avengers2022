@@ -1,5 +1,6 @@
 $(document).ready(function(){
 
+  bb.hide();
   gameScreen.setBackGroundImage('fondo.jpg');
   var mouse = new Mouse();
   var backgroudMusic = new Sound('capsong', 'sounds/', 'capsong2.mp3', 50, true);
@@ -14,26 +15,21 @@ $(document).ready(function(){
 
   var lifeCycleClock = null;
 
-  let cap = new Sprite('cap', 'cap', capLifeCycle, 0, 0, 250, 90, 'right', 0, false);
+  let cap = new Sprite('cap', 'cap', capLifeCycle, gameScreen.getWidth() / 2, gameScreen.getHeight() / 2, 250, 90, 'right', 0, false);
   cap.addCostume('capwalk', 'capwalk.gif', 103, 126);
   cap.addCostume('capshield', 'capshield.gif', 200, 150);
   cap.addCostume('caphand', 'caphand.gif', 237, 122);
   cap.addCostume('capdeath', 'capdeath.gif', 103, 126);
   cap.switchCostumeTo('capwalk');
-  cap.sounds.addSound(new Sound('capshield0', 'sounds/', 'capshield0.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield1', 'sounds/', 'capshield1.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield2', 'sounds/', 'capshield2.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield3', 'sounds/', 'capshield3.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield4', 'sounds/', 'capshield4.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield5', 'sounds/', 'capshield5.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield6', 'sounds/', 'capshield6.mp3', 50, false));
-  cap.sounds.addSound(new Sound('capshield7', 'sounds/', 'capshield7.mp3', 50, false));
-  cap.sounds.addSound(new Sound('cappain', 'sounds/', 'cappain.mp3', 50, false));
-
-  let chi = new Sprite('chi', 'chi', chiLifeCycle, 200, 200, 200, 144, 'right', 0, true, 135);
-  chi.addCostume('chitauri', 'navechit4.png', 200, 144);
-  chi.switchCostumeTo('chitauri');
-  chi.sounds.addSound(new Sound('gritoshi1', 'sounds/', 'tackle.mp3', 50, false));
+  cap.sounds.loadSoundsFromJsonFile('../json/cap.json');
+  let chiList = [];
+  for (i = 0; i < 5; i++) {
+    let chi = new Sprite('chi'+i, 'chi', chiLifeCycle, 200, 200, 200, 144, 'right', 0, true, 135);
+    chi.addCostume('chitauri', 'navechit4.png', 200, 144);
+    chi.switchCostumeTo('chitauri');
+    chi.sounds.loadSoundsFromJsonFile('../json/chi.json');
+    chiList.push(chi);
+  }
   
   $('#startGame').click(function(){ 
     
@@ -53,25 +49,28 @@ $(document).ready(function(){
        }, 500);
     });
     
-    backgroudMusic.playSound();
-    showLifes();
-
     score = 0;
     lifes = 3;
     touched = false;
     deathDate = null;
+    showLifes();
+    backgroudMusic.playSound();
 
+    cap.switchCostumeTo('capwalk');
     cap.bounceAngleZ = 0;
     cap.flipCostume('right');
     cap.goTo(0, 60);
     cap.show();
     cap.startLifeCycle();
     
-    chi.bounceAngleZ = 315;
-    chi.flipCostume('right');
-    chi.goTo(500, 700);
-    chi.show();
-    chi.startLifeCycle();
+    chiList.forEach(function(chi) {
+      chi.bounceAngleZ = 315;
+      chi.flipCostume('right');
+      let coord = gameScreen.getRandomEdgeCoordinates('bottom');
+      chi.goTo(coord.x, coord.y);
+      chi.show();
+      chi.startLifeCycle();
+    });
 
     lifeCycleClock = setInterval(gameLifeCycle);
   });
@@ -80,9 +79,13 @@ $(document).ready(function(){
     backgroudMusic.stopSound();
     clearInterval(lifeCycleClock);
     cap.stopLifeCycle()
-    chi.stopLifeCycle();
+    chiList.forEach(function(chi) {
+      chi.stopLifeCycle();
+    });
     cap.hide();
-    chi.hide();
+    chiList.forEach(function(chi) {
+      chi.hide();
+    });
   });
 
   function gameLifeCycle() {
@@ -92,56 +95,67 @@ $(document).ready(function(){
   }
 
   function capLifeCycle() {
-    if (cap.touchingTo(chi)) {
-      if (!touched) {
-        if (cap.currentConstume == 'capshield' || cap.currentConstume == 'caphand') {
-          chi.sounds.getSoundByName('gritoshi1').playSound();
-          score += 1;
-          chi.hide();
-          chi.goTo(400, 400)
-          chi.show();
-        } 
-        else if (chi.isVisible) {
-          cap.sounds.getSoundByName('cappain').playSound();
-          deathDate = new Date();
-          lifes -= 1;
-        }
-        showLifes();
-        touched = true;
-        if (lifes <= 0) {
-          cap.writeOnTheBoard('GAME OVER');
-          clearInterval(lifeCycleClock);
-          cap.stopLifeCycle();
-          chi.stopLifeCycle();
-          setTimeout(() => $('#stopGame').click(), 2000);
-        }
-      }
-    } 
-    else {
-      touched = false;
-    }
+    chiList.forEach(function(chi) {
+      if (cap.touchingTo(chi)) {
+        if (!touched) {
+          if (cap.currentConstume == 'capshield' || cap.currentConstume == 'caphand') {
+            chi.sounds.getSoundByName('gritoshi1').playSound();
+            score += 1;
+            chi.hide();
+            let coord = gameScreen.getRandomEdgeCoordinates();
+            chi.goTo(coord.x, coord.y);
+            chi.show();
+          } 
+          else if (chi.isVisible) {
+            cap.sounds.getSoundByName('cappain').playSound();
+            deathDate = new Date();
+            lifes -= 1;
 
-    if (deathDate == null) {
-      //bb.writeOnlyOneLine('ALIVE');
-    } else {
-      cap.switchCostumeTo('capdeath');
-      var endDate   = new Date();
-      var seconds = (endDate.getTime() - deathDate.getTime()) / 1000;
-      //bb.writeOnlyOneLine('Died ' + seconds + ' seconds');
-      if (seconds > 0.5) {
-        deathDate = null;
-        cap.switchCostumeTo('capwalk');
+
+            chi.hide();
+            let coord = gameScreen.getRandomEdgeCoordinates();
+            chi.goTo(coord.x, coord.y);
+            chi.show();
+
+
+
+          }
+          showLifes();
+          touched = true;
+          if (lifes <= 0) {
+            //cap.writeOnTheBoard('GAME OVER');
+            clearInterval(lifeCycleClock);
+            cap.stopLifeCycle();
+            chi.stopLifeCycle();
+            setTimeout(() => $('#stopGame').click(), 2000);
+          }
+        }
+      } 
+      else {
+        touched = false;
       }
-    }
+
+      if (deathDate == null) {
+        bb.writeOnlyOneLine('ALIVE');
+      } else {
+        cap.switchCostumeTo('capdeath');
+        var endDate   = new Date();
+        var seconds = (endDate.getTime() - deathDate.getTime()) / 1000;
+        bb.writeOnlyOneLine('Died ' + seconds + ' seconds');
+        if (seconds > 0.5) {
+          deathDate = null;
+          cap.switchCostumeTo('capwalk');
+        }
+      }
+    });
   }
 
-  function chiLifeCycle() {
+  function chiLifeCycle(chi) {
     chi.move(1);
   }
 
   function showLifes() {
-    chi.writeOnTheBoard(`Lifes: ${lifes}`);
-    cap.writeOnTheBoard(`Score: ${score}`);
+    cap.writeOnTheBoard(`Lifes: ${lifes} &nbsp;&nbsp;&nbsp; Score: ${score}`);
   }
 
 });
