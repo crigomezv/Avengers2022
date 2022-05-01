@@ -66,4 +66,3 @@ class Blackboard {
 }
 
 var bb = new Blackboard('pizarra', 4);
-bb.create();

@@ -2,11 +2,11 @@ class Sound {
   constructor(soundName, soundPath, soundFile, volume, loop) {
     if (soundName !== undefined && soundPath !== undefined 
         && soundFile !== undefined && volume !== undefined && loop !== undefined) {
-      this.initSound(soundName, soundPath, soundFile, volume, loop);
+      this.init(soundName, soundPath, soundFile, volume, loop);
     }
   }
   
-  initSound(soundName, soundPath, soundFile, volume, loop) {
+  init(soundName, soundPath, soundFile, volume, loop) {
     if (soundName === undefined) throw new Error('Sound name is required');
     if (soundPath === undefined) throw new Error('Sound path is required');
     if (soundFile === undefined) throw new Error('Sound file is required');
@@ -24,12 +24,12 @@ class Sound {
   }
 
   initSoundFromJson(json) {
-    let jsonObject = JsonTools.getJSON(json);
-    this.initSound(jsonObject.soundName, jsonObject.soundPath, jsonObject.soundFile, jsonObject.volume, jsonObject.loop);
+    let jsonObject = JsonTools.parse(json);
+    this.init(jsonObject.soundName, jsonObject.soundPath, jsonObject.soundFile, jsonObject.volume, jsonObject.loop);
   }
 
   static createFromJson(json) {
-    let jsonObject = JsonTools.getJSON(json);
+    let jsonObject = JsonTools.parse(json);
     return new Sound(jsonObject.soundName, jsonObject.soundPath, jsonObject.soundFile, jsonObject.volume, jsonObject.loop);
   }
 
@@ -42,6 +42,7 @@ class Sound {
   }
 
   setSoundPath(soundPath) {
+    ValidationTools.checkUrl('src in function setSoundPath', this.soundPath + this.soundFile);
     this.soundPath = soundPath;
     this.audio.src = this.soundPath + this.soundFile;
   }
@@ -51,6 +52,7 @@ class Sound {
   }
 
   setSoundFile(soundFile) {
+    ValidationTools.checkUrl('src in function setSoundFile', this.soundPath + this.soundFile);
     this.soundFile = soundFile;
     this.audio.src = this.soundPath + this.soundFile;
   }

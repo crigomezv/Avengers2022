@@ -4,21 +4,13 @@ class SoundMap {
     this.currentSoundIndex = -1;
     this.sounds = new Map();
     this.ready = false;
-    bb.writeOnlyOneLine('************************************');
+    //bb.writeOnlyOneLine('Loading sounds...');
   }
 
-  loadSoundsFromJsonFile(jsonFile) {
-    $.get(jsonFile, (data) => {
-      for (let sound of data.sounds) {
-        this.addSound(sound);
-      }
-    })
-    .then(() => {
-      this.ready = true;
-      bb.writeOnlyOneLine('OK');
-    }, (err) => {
-      throw new Error(err); 
-    });
+  loadSoundsFromJson(soundsJson) {
+    for (let sound of soundsJson) {
+      this.addSound(sound);
+    }
   }
 
   addSound(sound) {
@@ -35,7 +27,7 @@ class SoundMap {
   }
 
   existSoundName(soundName) {
-    if (!soundName) throw new Error('The sound name is required');
+    if (soundName === undefined) throw new Error('The sound name is required');
     return this.sounds.has(soundName);
   }
 

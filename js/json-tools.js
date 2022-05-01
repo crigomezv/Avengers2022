@@ -1,5 +1,5 @@
 class JsonTools {
-  static getJSON(json) {
+  static parse(json) {
     let m = 'getJSON function must receive a valid json parameter';
     if (json === undefined) throw new Error(m + ', but not an "undefined" value');
     if (json === null)  throw new Error(m + ', but not an "null" value');
