@@ -1,30 +1,24 @@
-$("#settings").on('click', function(){
-  new SoundButtons(backgroudMusic);
-});
-
 $(document).ready(function(){
 
-  bb.create();
-  bb.show();
+  var windowH =  $(window).height();
+  $('#main_container, #overlay').height(windowH);
+  $(window).resize(function () {
+      var windowH =  $(window).height();
+      $('#main_container, #overlay').height(windowH);
+  });
 
-  var gameScreen = new GameScreen();
-  gameScreen.stages.loadGameImagesFromJson(stageProperties.stages);
-  gameScreen.musics.loadSoundsFromJson(stageProperties.musics);
-  gameScreen.setCurrentStageByName('newyork01');
+  $("#settings").on('click', () => new SoundButtons(backgroudMusic));
+  $('#startGame').on('click', () => startGame());
+  $('#stopGame').on('click', () => stopGame());
 
+  var gameScreen = new GameScreen(stageProperties.stages, stageProperties.musics);
   var mouse = new Mouse();
   var keyboard = new Keyboard(startKeyboard);
-
-  var score = 0;
-  var lifes = 3;
-  var touched = false;
-  var deathDate = null;
-
   var lifeCycleClock = null;
+  var musicCycleClock = null;
   
   let cap = new Sprite();
-  cap.initFromJson(capProperties, gameScreen, capLifeCycle);
-  cap.switchCostumeTo('capwalk');
+  cap.initFromJson(capProperties, gameScreen, null);
 
   let chi = new Sprite();
   chi.createClones(5, chiProperties, gameScreen, chiLifeCycle);
@@ -33,20 +27,19 @@ $(document).ready(function(){
     key = e.keyCode || e.which;
     if (key == 49) {
       if (cap.sounds.getCurrentSoundName() == 'cappain') cap.sounds.nextSound();
-      cap.switchCostumeToWithSound('capshield', cap.sounds.getCurrentSoundName());
+      cap.switchCostumeToWithSound('capshield-attack', cap.sounds.getCurrentSoundName());
       cap.sounds.nextSound();
     }
     if (key == 50) {
-      cap.switchCostumeTo('caphand');
+      cap.switchCostumeTo('capkick-attack');
     }
-    setTimeout(() => cap.switchCostumeTo('capwalk'), 500);
+    setTimeout(() => cap.switchCostumeTo('cap-walking'), 500);
   }
-    
-  $('#startGame').on('click', function(){ 
-    gameScreen.musics.getSoundByName('capsong01').playSound();
-    keyboard.start();
 
-    cap.switchCostumeTo('capwalk');
+  function startGame() {
+    //gameScreen.musics.getSoundByName('capsong01').playSound();
+    keyboard.start();
+    cap.switchCostumeTo('cap-walking');
     cap.bounceAngleZ = 0;
     cap.flipCostume('right');
     cap.goTo(0, 60);
@@ -55,89 +48,69 @@ $(document).ready(function(){
     cap.lifes = 3;
     cap.score = 0;
     cap.showBoard();
-    touched = false;
-    deathDate = null;
-    
-    chi.clones.forEach((chi) => {
-        chi.bounceAngleZ = 315;
-        chi.flipCostume('right');
-        let coord = gameScreen.getRandomEdgeCoordinates('bottom');
-        chi.goTo(coord.x, coord.y);
-        chi.switchCostumeTo('chitauri');
-        chi.show();
-        chi.startLifeCycle();
-      });
-
+    chi.clones.forEach((chi) => startChitauriClone(chi));
     lifeCycleClock = setInterval(gameLifeCycle);
-  });
-
-  $('#stopGame').on('click', function(){
-    gameScreen.musics.getSoundByName('capsong01').stopSound();
-    clearInterval(lifeCycleClock);
+    musicCycleClock = setInterval(() => {
+      //gameScreen.musics.playNextSound();
+      gameScreen.showNextStage();
+    }, 3000);
+  }
+    
+  function stopGame() {
+    cap.writeOnTheBoard('GAME OVER');
+    gameScreen.musics.getCurrentSound().killSound();
+    clearInterval(clearInterval(lifeCycleClock));
+    clearInterval(clearInterval(musicCycleClock));
     cap.stopLifeCycle()
     cap.hide();
     chi.stopLifeCycle();
     chi.hideClones();
     keyboard.stop();
-  });
+  }
+
+  function startChitauriClone(chi) {
+    chi.bounceAngleZ = 315;
+    chi.flipCostume('right');
+    let coord = gameScreen.getRandomEdgeCoordinates('bottom');
+    chi.goTo(coord.x, coord.y);
+    chi.switchCostumeTo('chitauri');
+    chi.show();
+    chi.startLifeCycle();
+  }
 
   function gameLifeCycle() {
     if (mouseX >= cap.x + 3) cap.flipCostume('right');
     if (mouseX <= cap.x - 3) cap.flipCostume('left');
     cap.pointTowardsMousePointer();
-    gameScreen.setCurrentStageByName('newyork01');
   }
 
-  function capLifeCycle() {
-    chi.clones.forEach(function(chi) {
-      if (cap.touchingTo(chi, true)) {
-        if (!touched) {
-          let costume = cap.getCurrentCostumeName();
-          if (costume === 'capshield' || costume === 'caphand') {
-            chi.sounds.getSoundByName('gritoshi1').playSound();
-            cap.addScore(1);
-            let coord = gameScreen.getRandomEdgeCoordinates();
-            chi.goTo(coord.x, coord.y);
-          } 
-          else if (chi.isVisible) {
-            cap.sounds.getSoundByName('cappain').playSound();
-            deathDate = new Date();
-            cap.removeLifes(1);
-            let coord = gameScreen.getRandomEdgeCoordinates();
-            chi.goTo(coord.x, coord.y);
+  function checkCaptainDead(chi) {
+    if (!cap.costumeType('attack') && !cap.costumeType('dying')) {
+      cap.switchCostumeTo('cap-dying');
+      cap.removeLifes(1);
+      if (cap.lifes <= 0) stopGame();
+      cap.sounds.getSoundByName('cappain').playSound();
+      let coord = gameScreen.getRandomEdgeCoordinates();
+      chi.goTo(coord.x, coord.y);
+      setTimeout(() => cap.switchCostumeTo('cap-walking'), 2000);
+    }
+  }
 
-          }
-          cap.showBoard();
-          touched = true;
-          if (cap.lifes <= 0) {
-            cap.writeOnTheBoard('GAME OVER');
-            clearInterval(lifeCycleClock);
-            cap.stopLifeCycle();
-            chi.stopLifeCycle();
-            setTimeout(() => $('#stopGame').click(), 2000);
-          }
-        }
-      } 
-      else {
-        touched = false;
-      }
-
-      if (deathDate == null) {
-        bb.writeOnlyOneLine('ALIVE');
-      } else {
-        cap.switchCostumeTo('capdeath');
-        var endDate   = new Date();
-        var seconds = (endDate.getTime() - deathDate.getTime()) / 1000;
-        bb.writeOnlyOneLine('Died ' + seconds + ' seconds');
-        if (seconds > 0.5) {
-          deathDate = null;
-          cap.switchCostumeTo('capwalk');
-        }
-      }
-    });
+  function checkChitauriDead(chi) {
+    if (cap.costumeType('attack')) {
+      chi.sounds.getSoundByName('gritoshi1').playSound();
+      cap.addScore(1);
+      let coord = gameScreen.getRandomEdgeCoordinates();
+      chi.goTo(coord.x, coord.y);
+    } 
   }
 
   function chiLifeCycle(chi) {
+    if (chi.touchingTo(cap, true)) {
+      checkCaptainDead(chi);
+      checkChitauriDead(chi);
+      cap.showBoard();
+    }
     chi.move(1);
   }
 

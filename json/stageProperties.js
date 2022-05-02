@@ -35,6 +35,18 @@ var stageProperties = {
       "rotateY": 0,
       "rotateZ": 0,
       "flip": "none"
+    },
+    {
+      "gameImageParentName": "screen",
+      "gameImageName": "newyork04",
+      "gameImagePath": "../stages/", 
+      "gameImageFile": "newyork04.png",
+      "width": 1920,
+      "height": 1080,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "flip": "none"
     }
   ],
   "musics": [

@@ -34,7 +34,8 @@ class Sprite {
     if (propName === 'onEdgeBounce') ValidationTools.checkBoolean('onEdgeBounce', propValue);
     if (propName === 'bounceAngleZ') ValidationTools.checkDegree360('bounceAngleZ', propValue);
     if (propName === 'gameScreen') ValidationTools.ckechIsInstanceOfGameScreen('gameScreen', propValue);
-    if (propName === 'lifeCycleFunction') ValidationTools.checkFunction('lifeCycleFunction', propValue);
+    if (propName === 'lifeCycleFunction') ValidationTools.checkUndef('lifeCycleFunction', propValue);
+    if (propName === 'lifeCycleFunction' && !ValidationTools.isNull(propValue)) ValidationTools.checkFunction('lifeCycleFunction', propValue);
     return true;
   }
 
@@ -116,6 +117,7 @@ class Sprite {
       , json.onEdgeBounce, json.bounceAngleZ, gameScreen, lifeCycleFunction);
     this.costumes.loadGameImagesFromJson(json.costumes);
     this.sounds.loadSoundsFromJson(json.sounds);
+    this.switchCostumeTo(this.costumes.getGameImageNameByIndex(0));
   }
 
   createClones(numberOfClones, jsonObject, gameScreen, chiLifeCycle) {
@@ -149,7 +151,7 @@ class Sprite {
       this.width = parseInt($(this.id).css('width').replace('px', ''));
       this.height = parseInt($(this.id).css('height').replace('px', ''));
       this.calculateCorners();
-      this.lifeCycleFunction(this);
+      if (this.lifeCycleFunction !== null) this.lifeCycleFunction(this);
     }, 0);
   }
 
@@ -268,16 +270,12 @@ class Sprite {
     this.moveBouncing(steps);
   }
 
-  rotationTransform() {
-    return `rotateX(${this.rotateY}deg) rotateY(${this.rotateY}deg) rotateZ(${-1 * this.rotateZ}deg)`;
-  }
-
   rotate(rotateZ) {
     return;
     this.rotateZ += rotateZ;
     if (this.rotateZ >= 360) this.rotateZ = this.rotateZ - 360;
     if (this.rotateZ <= 0 ) this.rotateZ = 360 + this.rotateZ;
-    this.setCss('transform', this.rotationTransform());
+    this.setCss('transform', `rotateX(${this.rotateY}deg) rotateY(${this.rotateY}deg) rotateZ(${-1 * this.rotateZ}deg)`);
   }
 
   pointTowardsMousePointer() {
@@ -327,7 +325,23 @@ class Sprite {
   flipCostume(flip) {
     for (let index = 0; index < this.costumes.getCount(); index++) {
       this.costumes.getGameImageByIndex(index).setFlip(flip);
+      //console.log(this.name + ' ' + flip);
     }
+
+    this.flip = flip;
+
+    if (this.flip == 'right')
+      this.rotateY = 0;
+    else if (this.flip == 'left')
+      this.rotateY = 180;
+    else if (this.flip == 'none')
+      this.rotateY = rotateY;
+    else
+      throw new Error('The value of flip must be: left, right or none');
+
+    this.setCss('transform',`rotateX(${this.rotateX}deg) rotateY(${this.rotateY}deg) rotateZ(${this.rotateZ}deg)`);
+
+    //console.log(`>>> ${this.name} ${this.HTMLElement} ${this.HTMLElement.attr('id')} flip: ${this.flip} rotateX: ${this.rotateX} rotateY: ${this.rotateY} rotateZ: ${this.rotateZ}`);
   }
  
   switchCostumeToWithSound(customName, soundName) {
@@ -408,5 +422,9 @@ class Sprite {
 
   showBoard() {
     this.writeOnTheBoard(`Lifes: ${this.lifes} &nbsp;&nbsp;&nbsp; Score: ${this.score}`);
+  }
+
+  costumeType(type) {
+    return this.costumes.getCurrentGameImageName().includes(type);
   }
 }

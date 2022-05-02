@@ -128,6 +128,8 @@ class GameImage {
     else
       throw new Error('The value of flip must be: left, right or none');
 
+    //console.log(`${this.gameImageName} flip: ${this.flip} rotateX: ${this.rotateX} rotateY: ${this.rotateY} rotateZ: ${this.rotateZ}`);
+
     this.rotateZ = rotateZ;
     this.image.style.transform 
       = `rotateX(${this.rotateX}deg) `

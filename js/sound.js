@@ -100,6 +100,11 @@ class Sound {
     this.audio.pause();
   }
 
+  killSound() {
+    this.stopSound();
+    this.audio.remove();
+  }
+
   increaseVolume() {
     this.setVolume(this.getVolume() + 1);
   }

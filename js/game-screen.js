@@ -1,12 +1,30 @@
 class GameScreen {
 
-  constructor() {
+  constructor(stagesJson, musicsJson) {
     this.stages = new GameImageMap();
+    this.stages.loadGameImagesFromJson(stagesJson);
     this.musics = new SoundMap();
+    this.musics.loadSoundsFromJson(musicsJson);
+    this.setCurrentStageByIndex(0);
   }
 
   setCurrentStageByName(gameImageName) {
     this.stages.setCurrentGameImageByName(gameImageName);
+    this.setStageImage(this.stages.getCurrentGameImage().getGameImageSrc());
+  }
+
+  setCurrentStageByIndex(gameImageIndex) {
+    this.stages.setCurrentGameImageByIndex(gameImageIndex);
+    this.setStageImage(this.stages.getCurrentGameImage().getGameImageSrc());
+  }
+
+  showNextStage() {
+    this.stages.nextGameImage();
+    this.setStageImage(this.stages.getCurrentGameImage().getGameImageSrc());
+  }
+
+  showPreviousStage() {
+    this.stages.previousGameImage();
     this.setStageImage(this.stages.getCurrentGameImage().getGameImageSrc());
   }
 
@@ -60,4 +78,5 @@ class GameScreen {
     if (edge == 'right') return {"x": this.getWidth(), "y": this.getRandomPositionY()};
     if (edge == 'bottom') return {"x": this.getRandomPositionX(), "y": this.getHeight()};
   }
+
 }

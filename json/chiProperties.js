@@ -16,7 +16,7 @@ var chiProperties = {
       {
         "soundName": "gritoshi1",
         "soundPath": "../sounds/", 
-        "soundFile": "tackle.mp3",
+        "soundFile": "chi-shout.mp3",
         "volume": 50,
         "loop": false
       }
@@ -26,7 +26,7 @@ var chiProperties = {
       "gameImageParentName": "chi",
       "gameImageName": "chitauri",
       "gameImagePath": "../costumes/", 
-      "gameImageFile": "navechit4.png",
+      "gameImageFile": "chi-spaceship.png",
       "width": 200,
       "height": 144,
       "rotateX": 0,

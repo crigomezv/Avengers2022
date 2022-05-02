@@ -95,10 +95,22 @@ class SoundMap {
     }
   }
 
+  playNextSound() {
+    this.getCurrentSound().killSound();
+    this.nextSound();
+    this.getCurrentSound().playSound();
+  }
+
   previousSound() {
     this.currentSoundIndex--;
     if (this.currentSoundIndex < 0) {
       this.currentSoundIndex = this.sounds.size - 1;
     }
+  }
+
+  playPreviousSound() {
+    this.getCurrentSound().killSound();
+    this.previousSound();
+    this.getCurrentSound().playSound();
   }
 }

@@ -80,9 +80,9 @@ var capProperties = {
   "costumes": [
     {
       "gameImageParentName": "cap",
-      "gameImageName": "capwalk",
+      "gameImageName": "cap-walking",
       "gameImagePath": "../costumes/",
-      "gameImageFile": "capwalk.gif",
+      "gameImageFile": "cap-walking.gif",
       "width": 103,
       "height": 126,
       "rotateX": 0,
@@ -92,9 +92,9 @@ var capProperties = {
     },
     {
       "gameImageParentName": "cap",
-      "gameImageName": "capshield",
+      "gameImageName": "capshield-attack",
       "gameImagePath": "../costumes/",
-      "gameImageFile": "capshield.gif",
+      "gameImageFile": "cap-shield-attack.gif",
       "width": 200,
       "height": 150,
       "rotateX": 0,
@@ -104,9 +104,9 @@ var capProperties = {
     },
     {
       "gameImageParentName": "cap",
-      "gameImageName": "caphand",
+      "gameImageName": "capkick-attack",
       "gameImagePath": "../costumes/",
-      "gameImageFile": "caphand.gif",
+      "gameImageFile": "cap-kick-attack.gif",
       "width": 237,
       "height": 122,
       "rotateX": 0,
@@ -116,9 +116,9 @@ var capProperties = {
     },
     {
       "gameImageParentName": "cap",
-      "gameImageName": "capdeath",
+      "gameImageName": "cap-dying",
       "gameImagePath": "../costumes/",
-      "gameImageFile": "capdeath.gif",
+      "gameImageFile": "cap-dying.gif",
       "width": 103,
       "height": 126,
       "rotateX": 0,
