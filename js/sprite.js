@@ -155,6 +155,14 @@ class Sprite {
     }, 0);
   }
 
+  resizeByFactor(factor) {
+    this.width = this.width + this.width * factor;
+    this.height = this.height + this.height * factor;
+    $(this.id).css('width', this.width + 'px');
+    $(this.id).css('height', this.height + 'px');
+    this.calculateCorners();
+  }
+
   writeOnTheBoard(html) {
     $(`#${this.name}_board`).html(html);
   }
@@ -172,11 +180,11 @@ class Sprite {
   }
 
   getCss(propertyName) {
-    return this.HTMLElement.css(propertyName);
+    return $(this.id).css(propertyName);
   }
 
   setCss(propertyName, value) {
-    this.HTMLElement.css(propertyName, value);
+    $(this.id).css(propertyName, value);
   }
 
   goTo(x, y) {
@@ -279,8 +287,8 @@ class Sprite {
   }
 
   pointTowardsMousePointer() {
-    this.HTMLElement.css('left', (mouseX + 1) + 'px');
-    this.HTMLElement.css('top', (mouseY + 1) + 'px');
+    $(this.id).css('left', (mouseX + 1) + 'px');
+    $(this.id).css('top', (mouseY + 1) + 'px');
   }
 
   addCostume(gameImage) {
@@ -341,7 +349,7 @@ class Sprite {
 
     this.setCss('transform',`rotateX(${this.rotateX}deg) rotateY(${this.rotateY}deg) rotateZ(${this.rotateZ}deg)`);
 
-    //console.log(`>>> ${this.name} ${this.HTMLElement} ${this.HTMLElement.attr('id')} flip: ${this.flip} rotateX: ${this.rotateX} rotateY: ${this.rotateY} rotateZ: ${this.rotateZ}`);
+    //console.log(`>>> ${this.name} ${$(this.id)} ${$(this.id).attr('id')} flip: ${this.flip} rotateX: ${this.rotateX} rotateY: ${this.rotateY} rotateZ: ${this.rotateZ}`);
   }
  
   switchCostumeToWithSound(customName, soundName) {
@@ -381,7 +389,7 @@ class Sprite {
   }
 
   show() {
-    this.HTMLElement.show();
+    $(this.id).show();
     this.isVisible = true;
   }
 
@@ -393,7 +401,7 @@ class Sprite {
   }
 
   hide() {
-    this.HTMLElement.hide();
+    $(this.id).hide();
     this.isVisible = false;
   }
 

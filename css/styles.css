@@ -25,16 +25,24 @@ body.modal-open {
 
 .cap {
     position: absolute;
-    /* border: 1px solid blue; */
+    border: 1px solid blue;
     background-repeat: no-repeat;
     background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 .chi {
     position: absolute;
-    /* border: 1px solid blue; */
+    border: 1px solid blue;
     background-repeat: no-repeat;
     background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 .texto {
@@ -62,7 +70,7 @@ header {
   }
 
   
-  
+/*   
 
   body { background-color: #000000; font-family: Arial; font-size: 12px;
     color: #000; margin: 0; padding: 0; overflow: hidden; }
@@ -71,4 +79,4 @@ header {
 #video { position: absolute; left: 0px; top: 0px; min-height: 100%;
       min-width: 100%; z-index: 0; }​
 #overlay { position: absolute; left: 0px; top: 0px; height: 100%; width: 100%;
-        z-index: 9998; }
+        z-index: 9998; } */

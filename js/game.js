@@ -37,7 +37,7 @@ $(document).ready(function(){
   }
 
   function startGame() {
-    //gameScreen.musics.getSoundByName('capsong01').playSound();
+    gameScreen.musics.getSoundByName('capsong01').playSound();
     keyboard.start();
     cap.switchCostumeTo('cap-walking');
     cap.bounceAngleZ = 0;
@@ -81,6 +81,7 @@ $(document).ready(function(){
   function gameLifeCycle() {
     if (mouseX >= cap.x + 3) cap.flipCostume('right');
     if (mouseX <= cap.x - 3) cap.flipCostume('left');
+
     cap.pointTowardsMousePointer();
   }
 
